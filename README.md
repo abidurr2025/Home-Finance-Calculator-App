@@ -1,7 +1,6 @@
 # Real Estate Finance Calculator Suite
 
 [![Repository Size](https://img.shields.io/github/repo-size/abidurrahman2025/Real-Estate-Finance-Calculator-Suite)](https://github.com/abidurrahman2025/Real-Estate-Finance-Calculator-Suite)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Languages](https://img.shields.io/badge/Lang-HTML%20%7C%20Java%20%7C%20Python-lightgrey.svg)](https://github.com/abidurrahman2025/Real-Estate-Finance-Calculator-Suite)
 
 A polished, modular collection of real-estate finance calculators — web UI, Java utilities, and Python analysis scripts — designed for investors, agents, and developers who need accurate, reproducible property financial modeling.
