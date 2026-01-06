@@ -1,0 +1,1498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RealEstateCalc Pro | Mobile Real Estate Analysis</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --radius: 12px;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding-bottom: 80px;
+        }
+        
+        .container {
+            max-width: 100%;
+            padding: 0 16px;
+        }
+        
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 20px 16px;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo i {
+            font-size: 24px;
+            color: var(--light);
+        }
+        
+        .logo h1 {
+            font-size: 20px;
+            font-weight: 700;
+        }
+        
+        .app-version {
+            font-size: 12px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+        
+        /* Tabs */
+        .tabs {
+            display: flex;
+            background-color: white;
+            border-bottom: 1px solid #e0e0e0;
+            overflow-x: auto;
+            position: sticky;
+            top: 80px;
+            z-index: 99;
+        }
+        
+        .tab {
+            padding: 16px 20px;
+            font-weight: 600;
+            color: #666;
+            white-space: nowrap;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            flex: 1;
+            text-align: center;
+        }
+        
+        .tab.active {
+            color: var(--secondary);
+            border-bottom-color: var(--secondary);
+        }
+        
+        .tab i {
+            margin-right: 8px;
+        }
+        
+        /* Tab Content */
+        .tab-content {
+            display: none;
+            padding: 20px 0;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Calculator Cards */
+        .calculator-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .card-header h2 {
+            font-size: 18px;
+            color: var(--primary);
+        }
+        
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--secondary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Input Groups */
+        .input-group {
+            margin-bottom: 16px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .input-with-icon {
+            position: relative;
+        }
+        
+        .input-with-icon i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+        
+        .input-with-icon input, 
+        .input-with-icon select {
+            width: 100%;
+            padding: 14px 14px 14px 40px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+        
+        .input-with-icon input:focus, 
+        .input-with-icon select:focus {
+            border-color: var(--secondary);
+            outline: none;
+        }
+        
+        .range-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .range-container input[type="range"] {
+            flex: 1;
+        }
+        
+        .range-value {
+            min-width: 50px;
+            text-align: right;
+            font-weight: 600;
+            color: var(--secondary);
+        }
+        
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            padding: 14px 24px;
+            background: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            width: 100%;
+        }
+        
+        .btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .btn-calculate {
+            background: var(--success);
+        }
+        
+        .btn-calculate:hover {
+            background: #219653;
+        }
+        
+        .btn-reset {
+            background: #95a5a6;
+            margin-top: 10px;
+        }
+        
+        .btn-reset:hover {
+            background: #7f8c8d;
+        }
+        
+        /* Results */
+        .results-container {
+            margin-top: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: var(--radius);
+            border-left: 4px solid var(--secondary);
+        }
+        
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .results-header h3 {
+            color: var(--primary);
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .result-label {
+            color: #666;
+        }
+        
+        .result-value {
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .highlight {
+            color: var(--accent);
+            font-size: 20px;
+        }
+        
+        /* Charts */
+        .chart-container {
+            margin-top: 25px;
+            position: relative;
+            height: 250px;
+            width: 100%;
+        }
+        
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.05);
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--secondary);
+            margin: 10px 0;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #777;
+        }
+        
+        /* Footer */
+        .footer-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            border-top: 1px solid #e0e0e0;
+            z-index: 100;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #777;
+            text-decoration: none;
+            font-size: 12px;
+            transition: color 0.3s;
+        }
+        
+        .nav-item.active {
+            color: var(--secondary);
+        }
+        
+        .nav-item i {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+        
+        /* Responsive */
+        @media (min-width: 768px) {
+            .container {
+                max-width: 750px;
+                margin: 0 auto;
+            }
+            
+            .stat-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-calculator"></i>
+                    <h1>RealEstateCalc Pro</h1>
+                </div>
+                <div class="app-version">v2.1</div>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Tabs -->
+    <div class="tabs">
+        <div class="tab active" data-tab="mortgage">
+            <i class="fas fa-home"></i> Mortgage
+        </div>
+        <div class="tab" data-tab="affordability">
+            <i class="fas fa-wallet"></i> Affordability
+        </div>
+        <div class="tab" data-tab="roi">
+            <i class="fas fa-chart-line"></i> ROI
+        </div>
+        <div class="tab" data-tab="rental">
+            <i class="fas fa-key"></i> Rental Yield
+        </div>
+    </div>
+    
+    <div class="container">
+        <!-- Mortgage Calculator -->
+        <div id="mortgage" class="tab-content active">
+            <div class="calculator-card">
+                <div class="card-header">
+                    <h2>Mortgage Calculator</h2>
+                    <div class="card-icon">
+                        <i class="fas fa-calculator"></i>
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="home-price">Home Price ($)</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-dollar-sign"></i>
+                        <input type="number" id="home-price" value="500000" min="50000" max="5000000" step="10000">
+                    </div>
+                    <div class="range-container">
+                        <input type="range" id="home-price-range" min="50000" max="5000000" step="10000" value="500000">
+                        <div class="range-value" id="home-price-value">$500,000</div>
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="down-payment">Down Payment (%)</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-percentage"></i>
+                        <input type="number" id="down-payment" value="20" min="3" max="100" step="1">
+                    </div>
+                    <div class="range-container">
+                        <input type="range" id="down-payment-range" min="3" max="100" step="1" value="20">
+                        <div class="range-value" id="down-payment-value">20%</div>
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="loan-term">Loan Term (years)</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-calendar-alt"></i>
+                        <select id="loan-term">
+                            <option value="15">15 years</option>
+                            <option value="30" selected>30 years</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="interest-rate">Interest Rate (%)</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-percentage"></i>
+                        <input type="number" id="interest-rate" value="6.5" min="1" max="15" step="0.1">
+                    </div>
+                    <div class="range-container">
+                        <input type="range" id="interest-rate-range" min="1" max="15" step="0.1" value="6.5">
+                        <div class="range-value" id="interest-rate-value">6.5%</div>
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="property-tax">Annual Property Tax ($)</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-dollar-sign"></i>
+                        <input type="number" id="property-tax" value="5000" min="0" max="50000" step="100">
+                    </div>
+                </div>
+                
+                <button class="btn btn-calculate" id="calculate-mortgage">
+                    <i class="fas fa-calculator"></i> Calculate Mortgage
+                </button>
+                <button class="btn btn-reset" id="reset-mortgage">
+                    <i class="fas fa-redo"></i> Reset
+                </button>
+                
+                <div id="mortgage-results" class="results-container" style="display: none;">
+                    <div class="results-header">
+                        <h3>Monthly Payment Breakdown</h3>
+                        <div class="highlight" id="total-monthly-payment">$0</div>
+                    </div>
+                    
+                    <div class="result-item">
+                        <span class="result-label">Principal & Interest</span>
+                        <span class="result-value" id="principal-interest">$0</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Property Tax</span>
+                        <span class="result-value" id="monthly-tax">$0</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Insurance</span>
+                        <span class="result-value" id="monthly-insurance">$0</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">PMI (if applicable)</span>
+                        <span class="result-value" id="monthly-pmi">$0</span>
+                    </div>
+                    
+                    <div class="stat-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">Total Loan Amount</div>
+                            <div class="stat-value" id="total-loan-amount">$0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Down Payment</div>
+                            <div class="stat-value" id="total-down-payment">$0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Total Interest Paid</div>
+                            <div class="stat-value" id="total-interest">$0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Payoff Date</div>
+                            <div class="stat-value" id="payoff-date">-</div>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <canvas id="mortgage-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Affordability Calculator -->
+        <div id="affordability" class="tab-content">
+            <div class="calculator-card">
+                <div class="card-header">
+                    <h2>Affordability Calculator</h2>
+                    <div class="card-icon">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="annual-income">Annual Income ($)</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-dollar-sign"></i>
+                        <input type="number" id="annual-income" value="100000" min="20000" max="1000000" step="5000">
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="monthly-debts">Monthly Debts ($)</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-credit-card"></i>
+                        <input type="number" id="monthly-debts" value="500" min="0" max="10000" step="50">
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="down-payment-afford">Down Payment Available ($)</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-piggy-bank"></i>
+                        <input type="number" id="down-payment-afford" value="50000" min="0" max="500000" step="5000">
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="debt-to-income">Maximum Debt-to-Income Ratio (%)</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-percentage"></i>
+                        <input type="number" id="debt-to-income" value="36" min="20" max="50" step="1">
+                    </div>
+                    <div class="range-container">
+                        <input type="range" id="debt-to-income-range" min="20" max="50" step="1" value="36">
+                        <div class="range-value" id="debt-to-income-value">36%</div>
+                    </div>
+                </div>
+                
+                <button class="btn btn-calculate" id="calculate-affordability">
+                    <i class="fas fa-calculator"></i> Calculate Affordability
+                </button>
+                
+                <div id="affordability-results" class="results-container" style="display: none;">
+                    <div class="results-header">
+                        <h3>What You Can Afford</h3>
+                    </div>
+                    
+                    <div class="result-item">
+                        <span class="result-label">Maximum Home Price</span>
+                        <span class="result-value highlight" id="max-home-price">$0</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Recommended Monthly Payment</span>
+                        <span class="result-value" id="recommended-payment">$0</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Monthly Principal & Interest</span>
+                        <span class="result-value" id="afford-pi">$0</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Estimated Monthly Taxes & Insurance</span>
+                        <span class="result-value" id="afford-tax-insurance">$0</span>
+                    </div>
+                    
+                    <div class="stat-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">Loan Amount</div>
+                            <div class="stat-value" id="afford-loan-amount">$0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Down Payment %</div>
+                            <div class="stat-value" id="afford-down-percent">0%</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Debt-to-Income Ratio</div>
+                            <div class="stat-value" id="actual-dti">0%</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Monthly Income</div>
+                            <div class="stat-value" id="monthly-income">$0</div>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <canvas id="affordability-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ROI Calculator -->
+        <div id="roi" class="tab-content">
+            <div class="calculator-card">
+                <div class="card-header">
+                    <h2>ROI Calculator</h2>
+                    <div class="card-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="purchase-price">Purchase Price ($)</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-tag"></i>
+                        <input type="number" id="purchase-price" value="300000" min="50000" max="5000000" step="10000">
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="renovation-cost">Renovation Costs ($)</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-tools"></i>
+                        <input type="number" id="renovation-cost" value="20000" min="0" max="500000" step="1000">
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="monthly-rent">Monthly Rental Income ($)</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-money-bill-wave"></i>
+                        <input type="number" id="monthly-rent" value="2000" min="0" max="20000" step="100">
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="annual-expenses">Annual Expenses ($)</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                        <input type="number" id="annual-expenses" value="6000" min="0" max="50000" step="500">
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="holding-period">Holding Period (years)</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-calendar"></i>
+                        <input type="number" id="holding-period" value="5" min="1" max="30" step="1">
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="appreciation-rate">Annual Appreciation Rate (%)</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-chart-line"></i>
+                        <input type="number" id="appreciation-rate" value="3" min="0" max="20" step="0.5">
+                    </div>
+                </div>
+                
+                <button class="btn btn-calculate" id="calculate-roi">
+                    <i class="fas fa-calculator"></i> Calculate ROI
+                </button>
+                
+                <div id="roi-results" class="results-container" style="display: none;">
+                    <div class="results-header">
+                        <h3>Return on Investment Analysis</h3>
+                        <div class="highlight" id="roi-percentage">0%</div>
+                    </div>
+                    
+                    <div class="result-item">
+                        <span class="result-label">Total Investment</span>
+                        <span class="result-value" id="total-investment">$0</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Estimated Future Value</span>
+                        <span class="result-value" id="future-value">$0</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Total Rental Income</span>
+                        <span class="result-value" id="total-rental-income">$0</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Total Expenses</span>
+                        <span class="result-value" id="total-expenses">$0</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Net Profit</span>
+                        <span class="result-value" id="net-profit">$0</span>
+                    </div>
+                    
+                    <div class="stat-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">Annual Cash Flow</div>
+                            <div class="stat-value" id="annual-cash-flow">$0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Cash on Cash ROI</div>
+                            <div class="stat-value" id="cash-on-cash">0%</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Annual Appreciation</div>
+                            <div class="stat-value" id="annual-appreciation">$0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Cap Rate</div>
+                            <div class="stat-value" id="cap-rate">0%</div>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <canvas id="roi-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Rental Yield Calculator -->
+        <div id="rental" class="tab-content">
+            <div class="calculator-card">
+                <div class="card-header">
+                    <h2>Rental Yield Calculator</h2>
+                    <div class="card-icon">
+                        <i class="fas fa-key"></i>
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="rental-price">Property Price ($)</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-tag"></i>
+                        <input type="number" id="rental-price" value="400000" min="50000" max="5000000" step="10000">
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="monthly-rental">Monthly Rental Income ($)</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-money-bill-wave"></i>
+                        <input type="number" id="monthly-rental" value="2500" min="0" max="20000" step="100">
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="vacancy-rate">Vacancy Rate (%)</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-bed"></i>
+                        <input type="number" id="vacancy-rate" value="5" min="0" max="50" step="1">
+                    </div>
+                    <div class="range-container">
+                        <input type="range" id="vacancy-rate-range" min="0" max="50" step="1" value="5">
+                        <div class="range-value" id="vacancy-rate-value">5%</div>
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="operating-expenses">Annual Operating Expenses ($)</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                        <input type="number" id="operating-expenses" value="8000" min="0" max="50000" step="500">
+                    </div>
+                </div>
+                
+                <button class="btn btn-calculate" id="calculate-rental">
+                    <i class="fas fa-calculator"></i> Calculate Rental Yield
+                </button>
+                
+                <div id="rental-results" class="results-container" style="display: none;">
+                    <div class="results-header">
+                        <h3>Rental Property Analysis</h3>
+                    </div>
+                    
+                    <div class="result-item">
+                        <span class="result-label">Gross Rental Yield</span>
+                        <span class="result-value highlight" id="gross-yield">0%</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Net Rental Yield</span>
+                        <span class="result-value highlight" id="net-yield">0%</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Annual Gross Income</span>
+                        <span class="result-value" id="annual-gross-income">$0</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Annual Net Income</span>
+                        <span class="result-value" id="annual-net-income">$0</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Monthly Cash Flow</span>
+                        <span class="result-value" id="monthly-cash-flow">$0</span>
+                    </div>
+                    
+                    <div class="stat-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">Operating Expense Ratio</div>
+                            <div class="stat-value" id="expense-ratio">0%</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Vacancy Loss</div>
+                            <div class="stat-value" id="vacancy-loss">$0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Cap Rate</div>
+                            <div class="stat-value" id="rental-cap-rate">0%</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Rent to Price Ratio</div>
+                            <div class="stat-value" id="rent-to-price">0%</div>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <canvas id="rental-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer Navigation -->
+    <div class="footer-nav">
+        <a href="#" class="nav-item active" data-tab="mortgage">
+            <i class="fas fa-home"></i>
+            <span>Mortgage</span>
+        </a>
+        <a href="#" class="nav-item" data-tab="affordability">
+            <i class="fas fa-wallet"></i>
+            <span>Affordability</span>
+        </a>
+        <a href="#" class="nav-item" data-tab="roi">
+            <i class="fas fa-chart-line"></i>
+            <span>ROI</span>
+        </a>
+        <a href="#" class="nav-item" data-tab="rental">
+            <i class="fas fa-key"></i>
+            <span>Rental</span>
+        </a>
+    </div>
+
+    <script>
+        // Tab Switching Logic
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tab click handlers
+            const tabs = document.querySelectorAll('.tab, .nav-item');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetTab = this.getAttribute('data-tab');
+                    
+                    // Update active tab
+                    tabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Show target content
+                    tabContents.forEach(content => {
+                        content.classList.remove('active');
+                        if (content.id === targetTab) {
+                            content.classList.add('active');
+                        }
+                    });
+                    
+                    // Update footer nav if clicking on header tab
+                    if (this.classList.contains('tab')) {
+                        document.querySelectorAll('.nav-item').forEach(navItem => {
+                            navItem.classList.remove('active');
+                            if (navItem.getAttribute('data-tab') === targetTab) {
+                                navItem.classList.add('active');
+                            }
+                        });
+                    }
+                });
+            });
+            
+            // Initialize range sliders
+            initializeRangeSliders();
+            
+            // Initialize calculators
+            initializeMortgageCalculator();
+            initializeAffordabilityCalculator();
+            initializeROICalculator();
+            initializeRentalCalculator();
+        });
+        
+        function initializeRangeSliders() {
+            // Home price range
+            const homePriceSlider = document.getElementById('home-price-range');
+            const homePriceInput = document.getElementById('home-price');
+            const homePriceValue = document.getElementById('home-price-value');
+            
+            homePriceSlider.addEventListener('input', function() {
+                const value = parseInt(this.value);
+                homePriceInput.value = value;
+                homePriceValue.textContent = '$' + formatNumber(value);
+            });
+            
+            homePriceInput.addEventListener('input', function() {
+                const value = parseInt(this.value);
+                homePriceSlider.value = value;
+                homePriceValue.textContent = '$' + formatNumber(value);
+            });
+            
+            // Down payment range
+            const downPaymentSlider = document.getElementById('down-payment-range');
+            const downPaymentInput = document.getElementById('down-payment');
+            const downPaymentValue = document.getElementById('down-payment-value');
+            
+            downPaymentSlider.addEventListener('input', function() {
+                const value = parseInt(this.value);
+                downPaymentInput.value = value;
+                downPaymentValue.textContent = value + '%';
+            });
+            
+            downPaymentInput.addEventListener('input', function() {
+                const value = parseInt(this.value);
+                downPaymentSlider.value = value;
+                downPaymentValue.textContent = value + '%';
+            });
+            
+            // Interest rate range
+            const interestRateSlider = document.getElementById('interest-rate-range');
+            const interestRateInput = document.getElementById('interest-rate');
+            const interestRateValue = document.getElementById('interest-rate-value');
+            
+            interestRateSlider.addEventListener('input', function() {
+                const value = parseFloat(this.value);
+                interestRateInput.value = value;
+                interestRateValue.textContent = value.toFixed(1) + '%';
+            });
+            
+            interestRateInput.addEventListener('input', function() {
+                const value = parseFloat(this.value);
+                interestRateSlider.value = value;
+                interestRateValue.textContent = value.toFixed(1) + '%';
+            });
+            
+            // Debt to income range
+            const dtiSlider = document.getElementById('debt-to-income-range');
+            const dtiInput = document.getElementById('debt-to-income');
+            const dtiValue = document.getElementById('debt-to-income-value');
+            
+            dtiSlider.addEventListener('input', function() {
+                const value = parseInt(this.value);
+                dtiInput.value = value;
+                dtiValue.textContent = value + '%';
+            });
+            
+            dtiInput.addEventListener('input', function() {
+                const value = parseInt(this.value);
+                dtiSlider.value = value;
+                dtiValue.textContent = value + '%';
+            });
+            
+            // Vacancy rate range
+            const vacancySlider = document.getElementById('vacancy-rate-range');
+            const vacancyInput = document.getElementById('vacancy-rate');
+            const vacancyValue = document.getElementById('vacancy-rate-value');
+            
+            vacancySlider.addEventListener('input', function() {
+                const value = parseInt(this.value);
+                vacancyInput.value = value;
+                vacancyValue.textContent = value + '%';
+            });
+            
+            vacancyInput.addEventListener('input', function() {
+                const value = parseInt(this.value);
+                vacancySlider.value = value;
+                vacancyValue.textContent = value + '%';
+            });
+        }
+        
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+        
+        // Mortgage Calculator
+        function initializeMortgageCalculator() {
+            const calculateBtn = document.getElementById('calculate-mortgage');
+            const resetBtn = document.getElementById('reset-mortgage');
+            
+            calculateBtn.addEventListener('click', calculateMortgage);
+            resetBtn.addEventListener('click', resetMortgage);
+            
+            function calculateMortgage() {
+                // Get input values
+                const homePrice = parseFloat(document.getElementById('home-price').value);
+                const downPaymentPercent = parseFloat(document.getElementById('down-payment').value);
+                const loanTerm = parseInt(document.getElementById('loan-term').value);
+                const interestRate = parseFloat(document.getElementById('interest-rate').value);
+                const propertyTax = parseFloat(document.getElementById('property-tax').value);
+                
+                // Calculations
+                const downPayment = homePrice * (downPaymentPercent / 100);
+                const loanAmount = homePrice - downPayment;
+                const monthlyInterestRate = (interestRate / 100) / 12;
+                const numberOfPayments = loanTerm * 12;
+                
+                // Calculate monthly principal + interest
+                const monthlyPayment = loanAmount * 
+                    (monthlyInterestRate * Math.pow(1 + monthlyInterestRate, numberOfPayments)) / 
+                    (Math.pow(1 + monthlyInterestRate, numberOfPayments) - 1);
+                
+                // Calculate other monthly costs
+                const monthlyTax = propertyTax / 12;
+                const monthlyInsurance = homePrice * 0.0035 / 12; // Estimate insurance as 0.35% of home value annually
+                const monthlyPMI = downPaymentPercent < 20 ? loanAmount * 0.005 / 12 : 0; // PMI if down payment < 20%
+                
+                const totalMonthlyPayment = monthlyPayment + monthlyTax + monthlyInsurance + monthlyPMI;
+                
+                // Calculate total interest
+                const totalInterest = (monthlyPayment * numberOfPayments) - loanAmount;
+                
+                // Calculate payoff date
+                const currentDate = new Date();
+                const payoffDate = new Date(currentDate.getFullYear() + loanTerm, currentDate.getMonth());
+                
+                // Update UI
+                document.getElementById('total-monthly-payment').textContent = '$' + formatNumber(totalMonthlyPayment.toFixed(2));
+                document.getElementById('principal-interest').textContent = '$' + formatNumber(monthlyPayment.toFixed(2));
+                document.getElementById('monthly-tax').textContent = '$' + formatNumber(monthlyTax.toFixed(2));
+                document.getElementById('monthly-insurance').textContent = '$' + formatNumber(monthlyInsurance.toFixed(2));
+                document.getElementById('monthly-pmi').textContent = '$' + formatNumber(monthlyPMI.toFixed(2));
+                document.getElementById('total-loan-amount').textContent = '$' + formatNumber(loanAmount.toFixed(0));
+                document.getElementById('total-down-payment').textContent = '$' + formatNumber(downPayment.toFixed(0));
+                document.getElementById('total-interest').textContent = '$' + formatNumber(totalInterest.toFixed(0));
+                document.getElementById('payoff-date').textContent = payoffDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+                
+                // Show results
+                document.getElementById('mortgage-results').style.display = 'block';
+                
+                // Create chart
+                createMortgageChart(monthlyPayment, monthlyTax, monthlyInsurance, monthlyPMI);
+            }
+            
+            function resetMortgage() {
+                document.getElementById('home-price').value = 500000;
+                document.getElementById('home-price-range').value = 500000;
+                document.getElementById('home-price-value').textContent = '$500,000';
+                document.getElementById('down-payment').value = 20;
+                document.getElementById('down-payment-range').value = 20;
+                document.getElementById('down-payment-value').textContent = '20%';
+                document.getElementById('loan-term').value = 30;
+                document.getElementById('interest-rate').value = 6.5;
+                document.getElementById('interest-rate-range').value = 6.5;
+                document.getElementById('interest-rate-value').textContent = '6.5%';
+                document.getElementById('property-tax').value = 5000;
+                document.getElementById('mortgage-results').style.display = 'none';
+            }
+            
+            function createMortgageChart(principalInterest, tax, insurance, pmi) {
+                const ctx = document.getElementById('mortgage-chart').getContext('2d');
+                
+                // Destroy existing chart if it exists
+                if (window.mortgageChart) {
+                    window.mortgageChart.destroy();
+                }
+                
+                window.mortgageChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Principal & Interest', 'Property Tax', 'Insurance', 'PMI'],
+                        datasets: [{
+                            data: [principalInterest, tax, insurance, pmi],
+                            backgroundColor: [
+                                '#3498db',
+                                '#2ecc71',
+                                '#e74c3c',
+                                '#f39c12'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 20,
+                                    font: {
+                                        size: 12
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        label += '$' + formatNumber(context.raw.toFixed(2));
+                                        return label;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+        
+        // Affordability Calculator
+        function initializeAffordabilityCalculator() {
+            const calculateBtn = document.getElementById('calculate-affordability');
+            
+            calculateBtn.addEventListener('click', calculateAffordability);
+            
+            function calculateAffordability() {
+                // Get input values
+                const annualIncome = parseFloat(document.getElementById('annual-income').value);
+                const monthlyDebts = parseFloat(document.getElementById('monthly-debts').value);
+                const downPayment = parseFloat(document.getElementById('down-payment-afford').value);
+                const dtiPercent = parseFloat(document.getElementById('debt-to-income').value);
+                
+                // Calculations
+                const monthlyIncome = annualIncome / 12;
+                const maxMonthlyPayment = (monthlyIncome * (dtiPercent / 100)) - monthlyDebts;
+                
+                // Estimate property tax and insurance (about 1.5% of home value annually)
+                const estimatedTaxInsuranceRate = 0.015 / 12;
+                
+                // Calculate maximum home price using reverse mortgage calculation
+                // Using 30-year fixed at 6.5% interest rate for this estimate
+                const interestRate = 6.5;
+                const loanTerm = 30;
+                const monthlyInterestRate = (interestRate / 100) / 12;
+                const numberOfPayments = loanTerm * 12;
+                
+                // Max principal & interest payment (subtract estimated tax & insurance)
+                const maxPIPayment = maxMonthlyPayment / (1 + estimatedTaxInsuranceRate);
+                
+                // Calculate maximum loan amount
+                const maxLoanAmount = maxPIPayment * 
+                    (Math.pow(1 + monthlyInterestRate, numberOfPayments) - 1) / 
+                    (monthlyInterestRate * Math.pow(1 + monthlyInterestRate, numberOfPayments));
+                
+                const maxHomePrice = maxLoanAmount + downPayment;
+                
+                // Calculate actual monthly payment breakdown for max home price
+                const loanAmount = maxHomePrice - downPayment;
+                const monthlyPayment = loanAmount * 
+                    (monthlyInterestRate * Math.pow(1 + monthlyInterestRate, numberOfPayments)) / 
+                    (Math.pow(1 + monthlyInterestRate, numberOfPayments) - 1);
+                
+                const monthlyTaxInsurance = maxHomePrice * 0.015 / 12;
+                const totalMonthlyPayment = monthlyPayment + monthlyTaxInsurance;
+                
+                const downPaymentPercent = (downPayment / maxHomePrice) * 100;
+                const actualDTI = ((monthlyPayment + monthlyDebts) / monthlyIncome) * 100;
+                
+                // Update UI
+                document.getElementById('max-home-price').textContent = '$' + formatNumber(maxHomePrice.toFixed(0));
+                document.getElementById('recommended-payment').textContent = '$' + formatNumber(totalMonthlyPayment.toFixed(2));
+                document.getElementById('afford-pi').textContent = '$' + formatNumber(monthlyPayment.toFixed(2));
+                document.getElementById('afford-tax-insurance').textContent = '$' + formatNumber(monthlyTaxInsurance.toFixed(2));
+                document.getElementById('afford-loan-amount').textContent = '$' + formatNumber(loanAmount.toFixed(0));
+                document.getElementById('afford-down-percent').textContent = downPaymentPercent.toFixed(1) + '%';
+                document.getElementById('actual-dti').textContent = actualDTI.toFixed(1) + '%';
+                document.getElementById('monthly-income').textContent = '$' + formatNumber(monthlyIncome.toFixed(0));
+                
+                // Show results
+                document.getElementById('affordability-results').style.display = 'block';
+                
+                // Create chart
+                createAffordabilityChart(monthlyPayment, monthlyTaxInsurance, monthlyDebts);
+            }
+            
+            function createAffordabilityChart(mortgage, taxInsurance, debts) {
+                const ctx = document.getElementById('affordability-chart').getContext('2d');
+                
+                // Destroy existing chart if it exists
+                if (window.affordabilityChart) {
+                    window.affordabilityChart.destroy();
+                }
+                
+                window.affordabilityChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Housing Payment', 'Other Debts', 'Remaining Income'],
+                        datasets: [{
+                            label: 'Monthly Amount ($)',
+                            data: [mortgage + taxInsurance, debts, 10000 - (mortgage + taxInsurance + debts)], // Example with $10k monthly income
+                            backgroundColor: [
+                                '#3498db',
+                                '#e74c3c',
+                                '#2ecc71'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return '$' + formatNumber(value);
+                                    }
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return '$' + formatNumber(context.raw.toFixed(2));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+        
+        // ROI Calculator
+        function initializeROICalculator() {
+            const calculateBtn = document.getElementById('calculate-roi');
+            
+            calculateBtn.addEventListener('click', calculateROI);
+            
+            function calculateROI() {
+                // Get input values
+                const purchasePrice = parseFloat(document.getElementById('purchase-price').value);
+                const renovationCost = parseFloat(document.getElementById('renovation-cost').value);
+                const monthlyRent = parseFloat(document.getElementById('monthly-rent').value);
+                const annualExpenses = parseFloat(document.getElementById('annual-expenses').value);
+                const holdingPeriod = parseInt(document.getElementById('holding-period').value);
+                const appreciationRate = parseFloat(document.getElementById('appreciation-rate').value);
+                
+                // Calculations
+                const totalInvestment = purchasePrice + renovationCost;
+                const annualRent = monthlyRent * 12;
+                const annualNetIncome = annualRent - annualExpenses;
+                const totalRentalIncome = annualNetIncome * holdingPeriod;
+                
+                // Calculate future value with appreciation
+                const futureValue = totalInvestment * Math.pow(1 + (appreciationRate / 100), holdingPeriod);
+                
+                // Calculate total profit
+                const netProfit = (futureValue - totalInvestment) + totalRentalIncome;
+                
+                // Calculate ROI
+                const roiPercentage = (netProfit / totalInvestment) * 100;
+                
+                // Additional metrics
+                const annualCashFlow = annualNetIncome;
+                const cashOnCashROI = (annualNetIncome / totalInvestment) * 100;
+                const annualAppreciation = purchasePrice * (appreciationRate / 100);
+                const capRate = (annualNetIncome / purchasePrice) * 100;
+                
+                // Update UI
+                document.getElementById('roi-percentage').textContent = roiPercentage.toFixed(1) + '%';
+                document.getElementById('total-investment').textContent = '$' + formatNumber(totalInvestment.toFixed(0));
+                document.getElementById('future-value').textContent = '$' + formatNumber(futureValue.toFixed(0));
+                document.getElementById('total-rental-income').textContent = '$' + formatNumber(totalRentalIncome.toFixed(0));
+                document.getElementById('total-expenses').textContent = '$' + formatNumber((annualExpenses * holdingPeriod).toFixed(0));
+                document.getElementById('net-profit').textContent = '$' + formatNumber(netProfit.toFixed(0));
+                document.getElementById('annual-cash-flow').textContent = '$' + formatNumber(annualCashFlow.toFixed(0));
+                document.getElementById('cash-on-cash').textContent = cashOnCashROI.toFixed(1) + '%';
+                document.getElementById('annual-appreciation').textContent = '$' + formatNumber(annualAppreciation.toFixed(0));
+                document.getElementById('cap-rate').textContent = capRate.toFixed(1) + '%';
+                
+                // Show results
+                document.getElementById('roi-results').style.display = 'block';
+                
+                // Create chart
+                createROIChart(purchasePrice, renovationCost, totalRentalIncome, netProfit);
+            }
+            
+            function createROIChart(purchase, renovation, rentalIncome, netProfit) {
+                const ctx = document.getElementById('roi-chart').getContext('2d');
+                
+                // Destroy existing chart if it exists
+                if (window.roiChart) {
+                    window.roiChart.destroy();
+                }
+                
+                window.roiChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Year 1', 'Year 2', 'Year 3', 'Year 4', 'Year 5', 'Year 6', 'Year 7', 'Year 8', 'Year 9', 'Year 10'],
+                        datasets: [
+                            {
+                                label: 'Property Value',
+                                data: [purchase + renovation, 
+                                       (purchase + renovation) * 1.03,
+                                       (purchase + renovation) * 1.06,
+                                       (purchase + renovation) * 1.09,
+                                       (purchase + renovation) * 1.13,
+                                       (purchase + renovation) * 1.16,
+                                       (purchase + renovation) * 1.19,
+                                       (purchase + renovation) * 1.23,
+                                       (purchase + renovation) * 1.27,
+                                       (purchase + renovation) * 1.30],
+                                borderColor: '#3498db',
+                                backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                                fill: true,
+                                tension: 0.4
+                            },
+                            {
+                                label: 'Cumulative Income',
+                                data: [rentalIncome/10 * 1, 
+                                       rentalIncome/10 * 2,
+                                       rentalIncome/10 * 3,
+                                       rentalIncome/10 * 4,
+                                       rentalIncome/10 * 5,
+                                       rentalIncome/10 * 6,
+                                       rentalIncome/10 * 7,
+                                       rentalIncome/10 * 8,
+                                       rentalIncome/10 * 9,
+                                       rentalIncome/10 * 10],
+                                borderColor: '#2ecc71',
+                                backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                                fill: true,
+                                tension: 0.4
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return '$' + formatNumber(value);
+                                    }
+                                }
+                            }
+                        },
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        label += '$' + formatNumber(context.raw.toFixed(0));
+                                        return label;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+        
+        // Rental Yield Calculator
+        function initializeRentalCalculator() {
+            const calculateBtn = document.getElementById('calculate-rental');
+            
+            calculateBtn.addEventListener('click', calculateRentalYield);
+            
+            function calculateRentalYield() {
+                // Get input values
+                const propertyPrice = parseFloat(document.getElementById('rental-price').value);
+                const monthlyRental = parseFloat(document.getElementById('monthly-rental').value);
+                const vacancyRate = parseFloat(document.getElementById('vacancy-rate').value);
+                const operatingExpenses = parseFloat(document.getElementById('operating-expenses').value);
+                
+                // Calculations
+                const annualGrossIncome = monthlyRental * 12;
+                const vacancyLoss = annualGrossIncome * (vacancyRate / 100);
+                const effectiveGrossIncome = annualGrossIncome - vacancyLoss;
+                const annualNetIncome = effectiveGrossIncome - operatingExpenses;
+                
+                const grossYield = (annualGrossIncome / propertyPrice) * 100;
+                const netYield = (annualNetIncome / propertyPrice) * 100;
+                const monthlyCashFlow = annualNetIncome / 12;
+                const expenseRatio = (operatingExpenses / effectiveGrossIncome) * 100;
+                const capRate = (annualNetIncome / propertyPrice) * 100;
+                const rentToPrice = (monthlyRental / propertyPrice) * 100;
+                
+                // Update UI
+                document.getElementById('gross-yield').textContent = grossYield.toFixed(2) + '%';
+                document.getElementById('net-yield').textContent = netYield.toFixed(2) + '%';
+                document.getElementById('annual-gross-income').textContent = '$' + formatNumber(annualGrossIncome.toFixed(0));
+                document.getElementById('annual-net-income').textContent = '$' + formatNumber(annualNetIncome.toFixed(0));
+                document.getElementById('monthly-cash-flow').textContent = '$' + formatNumber(monthlyCashFlow.toFixed(2));
+                document.getElementById('expense-ratio').textContent = expenseRatio.toFixed(1) + '%';
+                document.getElementById('vacancy-loss').textContent = '$' + formatNumber(vacancyLoss.toFixed(0));
+                document.getElementById('rental-cap-rate').textContent = capRate.toFixed(2) + '%';
+                document.getElementById('rent-to-price').textContent = rentToPrice.toFixed(3) + '%';
+                
+                // Show results
+                document.getElementById('rental-results').style.display = 'block';
+                
+                // Create chart
+                createRentalChart(annualGrossIncome, vacancyLoss, operatingExpenses, annualNetIncome);
+            }
+            
+            function createRentalChart(grossIncome, vacancy, expenses, netIncome) {
+                const ctx = document.getElementById('rental-chart').getContext('2d');
+                
+                // Destroy existing chart if it exists
+                if (window.rentalChart) {
+                    window.rentalChart.destroy();
+                }
+                
+                window.rentalChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Gross Income', 'Vacancy Loss', 'Operating Expenses', 'Net Income'],
+                        datasets: [{
+                            label: 'Annual Amount ($)',
+                            data: [grossIncome, -vacancy, -expenses, netIncome],
+                            backgroundColor: [
+                                '#3498db',
+                                '#f39c12',
+                                '#e74c3c',
+                                '#2ecc71'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                ticks: {
+                                    callback: function(value) {
+                                        return '$' + formatNumber(value);
+                                    }
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return '$' + formatNumber(context.raw.toFixed(0));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+        
+        // Initial calculation on page load
+        window.onload = function() {
+            // Trigger initial calculations
+            document.getElementById('calculate-mortgage').click();
+            document.getElementById('calculate-affordability').click();
+            document.getElementById('calculate-roi').click();
+            document.getElementById('calculate-rental').click();
+        };
+    </script>
+</body>
+</html>
